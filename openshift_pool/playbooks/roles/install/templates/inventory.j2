@@ -13,10 +13,22 @@ osm_use_cockpit=true
 openshift_hostname_check=false
 openshift_set_hostname=true
 openshift_master_default_subdomain={{ openshift_master_default_subdomain }}
-openshift_metrics_hawkular_hostname=hawkular-metrics.{{ openshift_master_default_subdomain }}
+
+
+# Openstack flags
+openshift_cloudprovider_kind=openstack
+openshift_cloudprovider_openstack_auth_url=https://ci-rhos.centralci.eng.rdu2.redhat.com:13000/v2.0
+openshift_cloudprovider_openstack_username=cmqe
+openshift_cloudprovider_openstack_password=qum5net
+openshift_cloudprovider_openstack_domain_name=Default
+openshift_cloudprovider_openstack_tenant_id=dad63b4fb62c44bf92611b6bedd42b10
+openshift_cloudprovider_openstack_region=regionOne
+
 
 # metrics
 # openshift_hosted_metrics_deploy=true
+# openshift_metrics_hawkular_hostname=hawkular-metrics.{{ openshift_master_default_subdomain }}
+
 
 [ose_deployer]
 # Workaround  Start and enable iptables service hanging
@@ -25,23 +37,23 @@ openshift_metrics_hawkular_hostname=hawkular-metrics.{{ openshift_master_default
 # This template is gonna be rendered on one of the masters and the
 # ansible-playbook with the result will be started on it. We want to set
 # the ansible connection to local on such host.
-{{ master_nodes[0] }} ansible_connection=local
+{{ master_nodes[0].p_ip  }} ansible_connection=local
 
 [etcd]
-{{ master_nodes[0] }} 
+{{ master_nodes[0].p_ip}}
 
 [masters]
 {% for host in master_nodes %}
-{{ host }}
+{{ host.p_ip  }}
 {% endfor %}
 
 [nodes]
 {% for host in master_nodes %}
-{{ host }} openshift_public_hostname={{ host }}
+{{ host.p_ip }} openshift_public_hostname={{ host.fqdn }} openshift_public_ip={{ host.ip }} openshift_hostname={{ host.p_ip}} openshift_ip={{ host.p_ip }}
 {% endfor %}
 {% for host in infra_nodes %}
-{{ host }} openshift_public_hostname={{ host }} openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+{{ host.p_ip }} openshift_public_hostname={{ host.fqdn }} openshift_public_ip={{ host.ip }} openshift_hostname={{ host.p_ip}} openshift_ip={{ host.p_ip }} openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
 {% endfor %}
 {% for host in compute_nodes %}
-{{ host }} openshift_public_hostname={{ host }} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"
+{{ host.p_ip }} openshift_public_hostname={{ host.fqdn }} openshift_public_ip={{ host.ip }} openshift_hostname={{ host.p_ip}} openshift_ip={{ host.p_ip }} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"
 {% endfor %}
